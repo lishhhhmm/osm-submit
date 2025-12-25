@@ -65,16 +65,6 @@ async function sha256(plain: string): Promise<string> {
 export async function startOAuthLogin(env: OsmEnvironment = 'dev'): Promise<void> {
     const config = OAUTH_CONFIG[env];
 
-    // Validate CLIENT_ID is configured
-    if (!OAUTH_CONFIG.CLIENT_ID || OAUTH_CONFIG.CLIENT_ID === 'YOUR_CLIENT_ID_HERE') {
-        const errorMsg = 'OAuth Client ID not configured! See ENV_SETUP.md or GITHUB_SECRETS_SETUP.md for setup instructions.';
-        console.error('❌', errorMsg);
-        alert(errorMsg);
-        throw new Error('OAuth Client ID not configured');
-    }
-
-    console.log('🔐 Client ID configured:', OAUTH_CONFIG.CLIENT_ID.substring(0, 10) + '...');
-
     // Generate PKCE values
     const codeVerifier = generateRandomString(128);
     const codeChallenge = await sha256(codeVerifier);
@@ -98,9 +88,8 @@ export async function startOAuthLogin(env: OsmEnvironment = 'dev'): Promise<void
 
     const authUrl = `${config.authUrl}?${params.toString()}`;
 
-    console.log('📍 Redirect URI:', getRedirectUri());
-    console.log('🌍 Environment:', env);
-    console.log('🚀 Auth URL:', authUrl);
+    console.log('Starting OAuth login flow...');
+    console.log('Redirecting to:', authUrl);
 
     // Redirect to OSM
     window.location.href = authUrl;
