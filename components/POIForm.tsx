@@ -85,107 +85,165 @@ const POIForm: React.FC<POIFormProps> = ({ data, onChange }) => {
         </div>
       </section>
 
-      {/* Basic Info */}
+      {/* Business Info - Streamlined */}
       <section className={cardClass}>
         <h3 className="text-lg font-semibold text-slate-800 dark:text-slate-100 mb-4 flex items-center gap-2">
           <Building className="w-5 h-5 text-indigo-600 dark:text-indigo-400" />
-          Basic Details
+          Business Information
         </h3>
         <div className="space-y-4">
+          {/* Name - Required */}
           <div>
-            <label className={labelClass}>Name</label>
+            <label className={labelClass}>
+              Business Name <span className="text-red-500">*</span>
+            </label>
             <input
               type="text"
               value={data.tags.name}
               onChange={(e) => handleTagChange('name', e.target.value)}
-              placeholder="e.g. Luigi's Pizza"
+              placeholder="e.g. Starbucks, McDonald's, 7-Eleven"
               className={inputClass.replace('blue', 'indigo')}
+              required
             />
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label className={labelClass}>Type (Amenity)</label>
-              <select
-                value={data.tags.amenity}
-                onChange={(e) => handleTagChange('amenity', e.target.value)}
-                className={selectClass.replace('blue', 'indigo')}
-              >
-                <option value="">Select Type...</option>
+
+          {/* Type - Required */}
+          <div>
+            <label className={labelClass}>
+              Type <span className="text-red-500">*</span>
+            </label>
+            <select
+              value={data.tags.amenity}
+              onChange={(e) => handleTagChange('amenity', e.target.value)}
+              className={selectClass.replace('blue', 'indigo')}
+              required
+            >
+              <option value="">Select business type...</option>
+              <optgroup label="Food & Drink">
                 <option value="restaurant">Restaurant</option>
                 <option value="fast_food">Fast Food</option>
-                <option value="cafe">Cafe</option>
+                <option value="cafe">Cafe / Coffee Shop</option>
                 <option value="bar">Bar</option>
                 <option value="pub">Pub</option>
-                <option value="ice_cream">Ice Cream</option>
-              </select>
-            </div>
-            <div>
-              <label className={labelClass}>Cuisine</label>
-              <input
-                type="text"
-                value={data.tags.cuisine || ''}
-                onChange={(e) => handleTagChange('cuisine', e.target.value)}
-                placeholder="e.g. pizza, italian, burger"
-                className={inputClass.replace('blue', 'indigo')}
-              />
-            </div>
+                <option value="ice_cream">Ice Cream Shop</option>
+                <option value="food_court">Food Court</option>
+                <option value="biergarten">Beer Garden</option>
+              </optgroup>
+              <optgroup label="Shopping">
+                <option value="supermarket">Supermarket</option>
+                <option value="convenience">Convenience Store</option>
+                <option value="marketplace">Marketplace</option>
+                <option value="mall">Shopping Mall</option>
+                <option value="department_store">Department Store</option>
+                <option value="clothes">Clothing Store</option>
+                <option value="shoes">Shoe Store</option>
+                <option value="electronics">Electronics Store</option>
+                <option value="books">Book Store</option>
+                <option value="sports">Sports Shop</option>
+                <option value="bicycle">Bicycle Shop</option>
+                <option value="car">Car Dealership</option>
+                <option value="furniture">Furniture Store</option>
+                <option value="jewelry">Jewelry Store</option>
+                <option value="gift">Gift Shop</option>
+                <option value="florist">Florist</option>
+                <option value="bakery">Bakery</option>
+                <option value="butcher">Butcher</option>
+              </optgroup>
+              <optgroup label="Services">
+                <option value="bank">Bank</option>
+                <option value="atm">ATM</option>
+                <option value="pharmacy">Pharmacy</option>
+                <option value="fuel">Gas Station</option>
+                <option value="charging_station">EV Charging Station</option>
+                <option value="car_wash">Car Wash</option>
+                <option value="car_repair">Auto Repair</option>
+                <option value="post_office">Post Office</option>
+                <option value="veterinary">Veterinary</option>
+                <option value="dentist">Dentist</option>
+                <option value="doctors">Doctor / Clinic</option>
+                <option value="hospital">Hospital</option>
+                <option value="clinic">Medical Clinic</option>
+              </optgroup>
+              <optgroup label="Accommodation">
+                <option value="hotel">Hotel</option>
+                <option value="motel">Motel</option>
+                <option value="hostel">Hostel</option>
+                <option value="guest_house">Guest House</option>
+              </optgroup>
+              <optgroup label="Entertainment">
+                <option value="cinema">Cinema</option>
+                <option value="theatre">Theatre</option>
+                <option value="nightclub">Nightclub</option>
+                <option value="casino">Casino</option>
+                <option value="gym">Gym / Fitness</option>
+              </optgroup>
+              <optgroup label="Other">
+                <option value="parking">Parking</option>
+                <option value="bicycle_parking">Bicycle Parking</option>
+                <option value="toilets">Public Toilets</option>
+                <option value="library">Library</option>
+                <option value="community_centre">Community Center</option>
+                <option value="place_of_worship">Place of Worship</option>
+              </optgroup>
+            </select>
           </div>
-        </div>
-      </section>
 
-      {/* Address */}
-      <section className={cardClass}>
-        <h3 className="text-lg font-semibold text-slate-800 dark:text-slate-100 mb-4 flex items-center gap-2">
-          <MapPin className="w-5 h-5 text-emerald-600 dark:text-emerald-500" />
-          Address
-        </h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div className="md:col-span-2">
-            <label className={labelClass}>Street</label>
+          {/* Cuisine - Only show for food places */}
+          {(data.tags.amenity === 'restaurant' ||
+            data.tags.amenity === 'fast_food' ||
+            data.tags.amenity === 'cafe') && (
+              <div>
+                <label className={labelClass}>Cuisine (Optional)</label>
+                <input
+                  type="text"
+                  value={data.tags.cuisine || ''}
+                  onChange={(e) => handleTagChange('cuisine', e.target.value)}
+                  placeholder="e.g. pizza, burger, italian, chinese, coffee"
+                  className={inputClass.replace('blue', 'indigo')}
+                />
+                <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+                  Separate multiple cuisines with semicolons: italian;pizza
+                </p>
+              </div>
+            )}
+
+          {/* Street Address - Common */}
+          <div>
+            <label className={labelClass}>Street Address (Optional)</label>
             <input
               type="text"
               value={data.tags["addr:street"] || ''}
               onChange={(e) => handleTagChange('addr:street', e.target.value)}
-              className={inputClass.replace('blue', 'emerald')}
+              placeholder="e.g. Main Street"
+              className={inputClass.replace('blue', 'indigo')}
             />
           </div>
-          <div>
-            <label className={labelClass}>House Number</label>
-            <input
-              type="text"
-              value={data.tags["addr:housenumber"] || ''}
-              onChange={(e) => handleTagChange('addr:housenumber', e.target.value)}
-              className={inputClass.replace('blue', 'emerald')}
-            />
-          </div>
-          <div>
-            <label className={labelClass}>Postcode</label>
-            <input
-              type="text"
-              value={data.tags["addr:postcode"] || ''}
-              onChange={(e) => handleTagChange('addr:postcode', e.target.value)}
-              className={inputClass.replace('blue', 'emerald')}
-            />
-          </div>
-          <div className="md:col-span-2">
-            <label className={labelClass}>City</label>
-            <input
-              type="text"
-              value={data.tags["addr:city"] || ''}
-              onChange={(e) => handleTagChange('addr:city', e.target.value)}
-              className={inputClass.replace('blue', 'emerald')}
-            />
-          </div>
-        </div>
-      </section>
 
-      {/* Details */}
-      <section className={cardClass}>
-        <h3 className="text-lg font-semibold text-slate-800 dark:text-slate-100 mb-4 flex items-center gap-2">
-          <Globe className="w-5 h-5 text-amber-600 dark:text-amber-500" />
-          Contact & Extra
-        </h3>
-        <div className="space-y-4">
+          {/* House Number and City - Side by side */}
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className={labelClass}>Number</label>
+              <input
+                type="text"
+                value={data.tags["addr:housenumber"] || ''}
+                onChange={(e) => handleTagChange('addr:housenumber', e.target.value)}
+                placeholder="123"
+                className={inputClass.replace('blue', 'indigo')}
+              />
+            </div>
+            <div>
+              <label className={labelClass}>City</label>
+              <input
+                type="text"
+                value={data.tags["addr:city"] || ''}
+                onChange={(e) => handleTagChange('addr:city', e.target.value)}
+                placeholder="e.g. Athens"
+                className={inputClass.replace('blue', 'indigo')}
+              />
+            </div>
+          </div>
+
+          {/* Phone and Website - Common for businesses */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label className={`${labelClass} flex items-center gap-1`}><Phone className="w-3 h-3" /> Phone</label>
@@ -193,8 +251,8 @@ const POIForm: React.FC<POIFormProps> = ({ data, onChange }) => {
                 type="text"
                 value={data.tags.phone || ''}
                 onChange={(e) => handleTagChange('phone', e.target.value)}
-                placeholder="+1 555 0199"
-                className={inputClass.replace('blue', 'amber')}
+                placeholder="+30 123 456 7890"
+                className={inputClass.replace('blue', 'indigo')}
               />
             </div>
             <div>
@@ -204,10 +262,12 @@ const POIForm: React.FC<POIFormProps> = ({ data, onChange }) => {
                 value={data.tags.website || ''}
                 onChange={(e) => handleTagChange('website', e.target.value)}
                 placeholder="https://example.com"
-                className={inputClass.replace('blue', 'amber')}
+                className={inputClass.replace('blue', 'indigo')}
               />
             </div>
           </div>
+
+          {/* Opening Hours */}
           <div>
             <label className={`${labelClass} flex items-center gap-1`}><Clock className="w-3 h-3" /> Opening Hours</label>
             <input
@@ -215,20 +275,25 @@ const POIForm: React.FC<POIFormProps> = ({ data, onChange }) => {
               value={data.tags.opening_hours || ''}
               onChange={(e) => handleTagChange('opening_hours', e.target.value)}
               placeholder="Mo-Fr 09:00-17:00; Sa 10:00-14:00"
-              className={inputClass.replace('blue', 'amber')}
+              className={inputClass.replace('blue', 'indigo')}
             />
+            <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+              Use OSM format. Example: Mo-Fr 09:00-21:00; Sa-Su 10:00-18:00
+            </p>
           </div>
+
+          {/* Wheelchair Access - Important */}
           <div>
             <label className={`${labelClass} flex items-center gap-1`}><Accessibility className="w-3 h-3" /> Wheelchair Access</label>
             <select
               value={data.tags.wheelchair || ''}
               onChange={(e) => handleTagChange('wheelchair', e.target.value)}
-              className={selectClass.replace('blue', 'amber')}
+              className={selectClass.replace('blue', 'indigo')}
             >
               <option value="">Unknown</option>
-              <option value="yes">Yes</option>
-              <option value="no">No</option>
-              <option value="limited">Limited</option>
+              <option value="yes">Yes - Fully Accessible</option>
+              <option value="limited">Limited - Partially Accessible</option>
+              <option value="no">No - Not Accessible</option>
             </select>
           </div>
         </div>

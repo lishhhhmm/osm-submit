@@ -43,8 +43,8 @@ const LocationMap: React.FC<LocationMapProps> = ({ lat, lon, onChange }) => {
         timeout: 60000,
         maximumAge: 0
       },
-      flyTo: true,
-      keepCurrentZoomLevel: false,
+      flyTo: false, // Instant, no animation
+      setView: 'untilPan', // Jump to location immediately
       clickBehavior: {
         inView: 'setView',
         outOfView: 'setView'
@@ -110,12 +110,11 @@ const LocationMap: React.FC<LocationMapProps> = ({ lat, lon, onChange }) => {
     if (latDiff > 0.0000001 || lonDiff > 0.0000001) {
       markerInstance.current.setLatLng([lat, lon]);
 
-      // If the change is significant (e.g. Locate Me clicked), fly to it
+      // Jump to location instantly (no animation)
       if (latDiff > 0.001 || lonDiff > 0.001) {
-        mapInstance.current.flyTo([lat, lon], 18, { duration: 1.5 });
+        mapInstance.current.setView([lat, lon], 18); // Instant zoom to location
       } else {
-        // Minor adjustment (manual input) - just pan
-        mapInstance.current.panTo([lat, lon]);
+        mapInstance.current.setView([lat, lon]); // Instant pan
       }
     }
 
