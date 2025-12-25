@@ -3,6 +3,8 @@
 ## Overview
 This project automatically deploys to GitHub Pages using GitHub Actions whenever you push to the `main` branch. **It's configured for custom domain usage by default.**
 
+> **Important**: This workflow uses `npm install` without a lock file (`package-lock.json`). This is intentional to allow deployment without requiring Node.js to be installed locally. Dependencies are installed fresh on each deployment.
+
 ## Initial Setup
 
 ### 1. Create GitHub Repository

@@ -108,6 +108,10 @@ npm run preview
 - **AI Integration**: Google Generative AI
 - **Deployment**: Docker with nginx
 
+## Deployment Notes
+
+**GitHub Actions Configuration**: The workflow uses `npm install` instead of `npm ci` and doesn't cache dependencies since the project doesn't include a lock file. This is intentional to support deployment without requiring local Node.js installation. The workflow will install fresh dependencies on each deployment, ensuring compatibility.
+
 ## License
 
 © 2025 OSM Submit. Designed for OpenStreetMap contributors.
