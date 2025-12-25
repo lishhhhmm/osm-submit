@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Redirecting...</title>
+    <script>
+        // GitHub Pages SPA redirect workaround
+        // When GitHub Pages returns 404, redirect to hash URL so React Router can handle it
+        (function () {
+            var path = window.location.pathname;
+            var search = window.location.search;
+
+            // If we're on /oauth/callback (or any path), redirect to /#/path
+            if (path && path !== '/' && path !== '/index.html') {
+                // Remove leading slash and redirect to hash URL
+                var hashPath = path.replace(/^\//, '');
+                window.location.replace('/#/' + hashPath + search);
+            } else {
+                // For root 404s, just go home
+                window.location.replace('/');
+            }
+        })();
+    </script>
+</head>
+
+<body>
+    <p>Redirecting...</p>
+</body>
+
+</html>
