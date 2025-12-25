@@ -44,7 +44,8 @@ const LocationMap: React.FC<LocationMapProps> = ({ lat, lon, onChange, onPOIDete
       locateOptions: {
         enableHighAccuracy: true,
         timeout: 60000,
-        maximumAge: 0
+        maximumAge: 0,
+        watch: false  // Don't continuously track - just locate once
       },
       flyTo: false, // Instant, no animation
       setView: 'untilPan', // Jump to location immediately
@@ -52,6 +53,9 @@ const LocationMap: React.FC<LocationMapProps> = ({ lat, lon, onChange, onPOIDete
         inView: 'setView',
         outOfView: 'setView'
       },
+      returnToPrevBounds: false, // Don't return to previous bounds
+      cacheLocation: false, // Don't cache - always get fresh location
+      showCompass: false, // Don't show compass (mobile)
       onLocationError: (err: any) => {
         console.error("Locate control error:", err);
         alert("Could not find your location. Please ensure location services are enabled.");
