@@ -1,0 +1,19 @@
+version: '3.8'
+
+services:
+  osm-submit:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: osm-submit
+    ports:
+      - "3000:80"
+    environment:
+      - NODE_ENV=production
+    restart: unless-stopped
+    networks:
+      - osm-network
+
+networks:
+  osm-network:
+    driver: bridge
