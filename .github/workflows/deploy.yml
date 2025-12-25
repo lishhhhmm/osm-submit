@@ -46,6 +46,13 @@ jobs:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY || 'dummy_key_for_build' }}
           # Optional: Set BASE_PATH if NOT using custom domain
           # BASE_PATH: '/your-repo-name/'
+      
+      - name: Verify build output
+        run: |
+          echo "Checking dist folder..."
+          ls -la dist/
+          echo "Checking index.html..."
+          cat dist/index.html | head -20
 
       - name: Setup Pages
         uses: actions/configure-pages@v4
