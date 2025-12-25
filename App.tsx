@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
-import { POIData, ViewMode, OsmTags } from './types';
+import { POIData } from './types';
 import POIForm from './components/POIForm';
-import RawPreview from './components/RawPreview';
-import { Map, Code2, Menu, X } from 'lucide-react';
+import ReviewSubmit from './components/ReviewSubmit';
+import { Map, ArrowRight } from 'lucide-react';
 
 const INITIAL_DATA: POIData = {
   lat: 0,
@@ -16,30 +16,17 @@ const INITIAL_DATA: POIData = {
 
 const App: React.FC = () => {
   const [data, setData] = useState<POIData>(INITIAL_DATA);
-  const [view, setView] = useState<ViewMode>(ViewMode.FORM);
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [step, setStep] = useState<'form' | 'review'>('form');
 
-  const NavButton = ({ mode, icon: Icon, label }: { mode: ViewMode, icon: any, label: string }) => (
-    <button
-      onClick={() => {
-        setView(mode);
-        setIsMobileMenuOpen(false);
-      }}
-      className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all font-medium ${view === mode
-        ? 'bg-blue-600 text-white shadow-md'
-        : 'text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800'
-        }`}
-    >
-      <Icon className="w-4 h-4" />
-      {label}
-    </button>
-  );
+  const isFormValid = () => {
+    return data.tags.name && data.tags.amenity && data.lat !== 0 && data.lon !== 0;
+  };
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex flex-col transition-colors duration-200">
       {/* Header */}
       <header className="bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 sticky top-0 z-50 transition-colors duration-200">
-        <div className="max-w-5xl mx-auto px-4 h-16 flex items-center justify-between">
+        <div className="max-w-4xl mx-auto px-4 h-16 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="bg-blue-600 p-2 rounded-lg">
               <Map className="w-5 h-5 text-white" />
@@ -47,87 +34,57 @@ const App: React.FC = () => {
             <h1 className="text-xl font-bold text-slate-800 dark:text-slate-100 tracking-tight">OSM Submit</h1>
           </div>
 
-          {/* Desktop Nav */}
-          <nav className="hidden md:flex items-center gap-2">
-            <NavButton mode={ViewMode.FORM} icon={Map} label="Editor" />
-            <NavButton mode={ViewMode.RAW} icon={Code2} label="Raw Data" />
-          </nav>
-
-          {/* Mobile Menu Toggle */}
-          <button
-            className="md:hidden p-2 text-slate-600 dark:text-slate-300"
-            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-          >
-            {isMobileMenuOpen ? <X /> : <Menu />}
-          </button>
-        </div>
-
-        {/* Mobile Nav */}
-        {isMobileMenuOpen && (
-          <div className="md:hidden border-t border-slate-100 dark:border-slate-800 p-4 bg-white dark:bg-slate-900 shadow-lg space-y-2">
-            <button
-              onClick={() => {
-                setView(ViewMode.FORM);
-                setIsMobileMenuOpen(false);
-              }}
-              className={`w-full text-left px-4 py-3 rounded-lg flex items-center gap-3 ${view === ViewMode.FORM ? 'bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 font-semibold' : 'text-slate-600 dark:text-slate-400'}`}
-            >
-              <Map className="w-5 h-5" /> Editor
-            </button>
-            <button
-              onClick={() => {
-                setView(ViewMode.RAW);
-                setIsMobileMenuOpen(false);
-              }}
-              className={`w-full text-left px-4 py-3 rounded-lg flex items-center gap-3 ${view === ViewMode.RAW ? 'bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 font-semibold' : 'text-slate-600 dark:text-slate-400'}`}
-            >
-              <Code2 className="w-5 h-5" /> Raw Data
-            </button>
+          {/* Step Indicator */}
+          <div className="hidden sm:flex items-center gap-2 text-sm">
+            <div className={`flex items-center gap-2 ${step === 'form' ? 'text-blue-600 dark:text-blue-400 font-semibold' : 'text-slate-400 dark:text-slate-600'}`}>
+              <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs ${step === 'form' ? 'bg-blue-600 text-white' : 'bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-400'}`}>1</div>
+              Fill Form
+            </div>
+            <ArrowRight className="w-4 h-4 text-slate-300 dark:text-slate-700" />
+            <div className={`flex items-center gap-2 ${step === 'review' ? 'text-blue-600 dark:text-blue-400 font-semibold' : 'text-slate-400 dark:text-slate-600'}`}>
+              <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs ${step === 'review' ? 'bg-blue-600 text-white' : 'bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-400'}`}>2</div>
+              Review & Submit
+            </div>
           </div>
-        )}
+        </div>
       </header>
 
       {/* Main Content */}
       <main className="flex-1 max-w-4xl mx-auto w-full p-4 md:p-8">
-
-        {view === ViewMode.FORM && (
+        {step === 'form' && (
           <div className="space-y-6">
-            <div className="text-center md:text-left mb-8">
-              <h2 className="text-2xl font-bold text-slate-800 dark:text-slate-100 mb-2">Create New Place</h2>
-              <p className="text-slate-500 dark:text-slate-400">Fill in the details below to generate an OSM-compliant submission.</p>
+            <div className="text-center md:text-left">
+              <h2 className="text-2xl md:text-3xl font-bold text-slate-800 dark:text-slate-100 mb-2">Add a New Place</h2>
+              <p className="text-slate-500 dark:text-slate-400">Fill in the details of the business or location you want to add to OpenStreetMap</p>
             </div>
 
             <POIForm data={data} onChange={setData} />
 
             <div className="flex justify-end pt-4">
               <button
-                onClick={() => setView(ViewMode.RAW)}
-                className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-xl font-semibold shadow-lg shadow-blue-600/20 transition-all hover:scale-[1.02] flex items-center gap-2"
+                onClick={() => setStep('review')}
+                disabled={!isFormValid()}
+                className={`px-8 py-3 rounded-xl font-semibold transition-all flex items-center gap-2 ${isFormValid()
+                    ? 'bg-blue-600 hover:bg-blue-700 text-white shadow-lg shadow-blue-600/20 hover:scale-[1.02]'
+                    : 'bg-slate-300 dark:bg-slate-700 text-slate-500 dark:text-slate-500 cursor-not-allowed'
+                  }`}
               >
-                Review Data <Code2 className="w-5 h-5" />
+                Continue to Review
+                <ArrowRight className="w-5 h-5" />
               </button>
             </div>
+
+            {!isFormValid() && (
+              <p className="text-sm text-amber-600 dark:text-amber-400 text-center">
+                * Please fill in required fields: Business Name, Type, and Location
+              </p>
+            )}
           </div>
         )}
 
-        {view === ViewMode.RAW && (
-          <div className="space-y-6">
-            <div className="flex items-center justify-between mb-6">
-              <div>
-                <h2 className="text-2xl font-bold text-slate-800 dark:text-slate-100 mb-1">Raw API Data</h2>
-                <p className="text-slate-500 dark:text-slate-400">Preview the XML payload for the OSM API.</p>
-              </div>
-              <button
-                onClick={() => setView(ViewMode.FORM)}
-                className="text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 font-medium px-4 py-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors"
-              >
-                Back to Edit
-              </button>
-            </div>
-            <RawPreview data={data} />
-          </div>
+        {step === 'review' && (
+          <ReviewSubmit data={data} onBack={() => setStep('form')} />
         )}
-
       </main>
 
       <footer className="bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 py-8 mt-auto transition-colors duration-200">
