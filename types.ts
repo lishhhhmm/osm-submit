@@ -14,6 +14,8 @@ export interface OsmTags {
 }
 
 export interface POIData {
+  id?: number;      // OSM element ID (for editing existing)
+  version?: number; // OSM element version (for editing existing)
   lat: number;
   lon: number;
   tags: OsmTags;

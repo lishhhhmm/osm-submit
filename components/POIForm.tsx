@@ -1,14 +1,21 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useState } from 'react';
 import { POIData, OsmTags } from '../types';
-import { MapPin, Building, Globe, Phone, Clock, Accessibility } from 'lucide-react';
+import { MapPin, Building, Globe, Phone, Clock, Accessibility, Edit, PlusCircle } from 'lucide-react';
 import LocationMap from './LocationMap';
+import POISelector from './POISelector';
+import { queryNearbyPOIs, overpassToPOIData, getPOIDisplayName } from '../services/overpassService';
 
 interface POIFormProps {
   data: POIData;
   onChange: (data: POIData) => void;
+  mode?: 'create' | 'edit';
+  onModeChange?: (mode: 'create' | 'edit') => void;
 }
 
-const POIForm: React.FC<POIFormProps> = ({ data, onChange }) => {
+const POIForm: React.FC<POIFormProps> = ({ data, onChange, mode = 'create', onModeChange }) => {
+  const [showPOISelector, setShowPOISelector] = useState(false);
+  const [nearbyPOIs, setNearbyPOIs] = useState<any[]>([]);
+  const [selectedLocation, setSelectedLocation] = useState<{ lat: number, lon: number } | null>(null);
 
   const handleTagChange = (key: keyof OsmTags, value: string) => {
     onChange({
@@ -43,6 +50,27 @@ const POIForm: React.FC<POIFormProps> = ({ data, onChange }) => {
   return (
     <div className="space-y-8 animate-fade-in">
 
+      {/* Mode Indicator */}
+      {mode === 'edit' && data.id && (
+        <div className="bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-900 rounded-xl p-4 flex items-center gap-3">
+          <Edit className="w-5 h-5 text-amber-600 dark:text-amber-400" />
+          <div className="flex-1">
+            <p className="font-semibold text-amber-900 dark:text-amber-100">Editing Existing POI #{data.id}</p>
+            <p className="text-sm text-amber-700 dark:text-amber-300">You're modifying an existing OpenStreetMap feature</p>
+          </div>
+        </div>
+      )}
+
+      {mode === 'create' && (
+        <div className="bg-blue-50 dark:bg-blue-950/20 border border-blue-200 dark:border-blue-900 rounded-xl p-4 flex items-center gap-3">
+          <PlusCircle className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+          <div className="flex-1">
+            <p className="font-semibold text-blue-900 dark:text-blue-100">Creating New POI</p>
+            <p className="text-sm text-blue-700 dark:text-blue-300">Add a new place to OpenStreetMap</p>
+          </div>
+        </div>
+      )}
+
       {/* Location Section */}
       <section className={cardClass}>
         <div className="mb-4">
@@ -51,13 +79,37 @@ const POIForm: React.FC<POIFormProps> = ({ data, onChange }) => {
             Location
           </h3>
           <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
-            Click the 📍 button on the map to find your location, or click anywhere to set position
+            Click the 📍 button or click anywhere on the map. We'll automatically detect if a POI already exists at that location.
           </p>
         </div>
 
         {/* Map */}
         <div className="mb-6">
-          <LocationMap lat={data.lat} lon={data.lon} onChange={handleMapChange} />
+          <LocationMap
+            lat={data.lat}
+            lon={data.lon}
+            onChange={handleMapChange}
+            onPOIDetected={async (clickedLat, clickedLon) => {
+              // Store clicked location
+              setSelectedLocation({ lat: clickedLat, lon: clickedLon });
+
+              // Query for nearby POIs (100m radius)
+              try {
+                const pois = await queryNearbyPOIs(clickedLat, clickedLon, 100);
+                if (pois.length > 0) {
+                  // Show selector with all nearby POIs
+                  setNearbyPOIs(pois);
+                  setShowPOISelector(true);
+                } else {
+                  // No POIs found - go to create mode
+                  onModeChange?.('create');
+                }
+              } catch (error) {
+                console.error('Error querying POIs:', error);
+                onModeChange?.('create');
+              }
+            }}
+          />
         </div>
 
         {/* Manual Inputs */}
@@ -298,6 +350,45 @@ const POIForm: React.FC<POIFormProps> = ({ data, onChange }) => {
           </div>
         </div>
       </section>
+
+      {/* POI Selector Modal */}
+      {showPOISelector && (
+        <POISelector
+          pois={nearbyPOIs.map(poi => ({
+            id: poi.id,
+            name: getPOIDisplayName(poi),
+            type: poi.tags?.amenity || poi.tags?.shop || 'unknown',
+            tags: poi.tags
+          }))}
+          onSelect={(selectedPOI) => {
+            if (selectedPOI) {
+              // Find the full POI data
+              const fullPOI = nearbyPOIs.find(p => p.id === selectedPOI.id);
+              if (fullPOI) {
+                const poiData = overpassToPOIData(fullPOI);
+                onChange(poiData);
+                onModeChange?.('edit');
+              }
+            }
+            setShowPOISelector(false);
+          }}
+          onCreateNew={() => {
+            // User chose to create new even though POIs exist
+            if (selectedLocation) {
+              onChange({
+                ...data,
+                lat: selectedLocation.lat,
+                lon: selectedLocation.lon
+              });
+            }
+            onModeChange?.('create');
+            setShowPOISelector(false);
+          }}
+          onCancel={() => {
+            setShowPOISelector(false);
+          }}
+        />
+      )}
     </div>
   );
 };

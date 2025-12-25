@@ -1,8 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { POIData, OsmEnvironment, SubmissionLog } from '../types';
 import { submitToOsm } from '../services/osmService';
-import { CheckCircle, MapPin, Building, Phone, Globe, Clock, Loader2, Send, ChevronDown, ChevronUp, Code2 } from 'lucide-react';
+import { CheckCircle, MapPin, Building, Phone, Globe, Clock, Loader2, Send, ChevronDown, ChevronUp, Code2, AlertCircle } from 'lucide-react';
 import RawPreview from './RawPreview';
+import UserInfo from './UserInfo';
+import { isLoggedIn, getStoredToken, getStoredEnv } from '../services/oauthService';
 
 interface ReviewSubmitProps {
     data: POIData;
@@ -11,17 +13,28 @@ interface ReviewSubmitProps {
 
 const ReviewSubmit: React.FC<ReviewSubmitProps> = ({ data, onBack }) => {
     const [showAdvanced, setShowAdvanced] = useState(false);
-    const [token, setToken] = useState('');
-    const [env, setEnv] = useState<OsmEnvironment>('dev');
+    const [env, setEnv] = useState<OsmEnvironment>(getStoredEnv());
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [logs, setLogs] = useState<SubmissionLog[]>([]);
+    const [isUserLoggedIn, setIsUserLoggedIn] = useState(isLoggedIn());
 
-    // Load cached token
-    React.useEffect(() => {
-        const cachedToken = localStorage.getItem('osm_oauth_token');
-        if (cachedToken) {
-            setToken(cachedToken);
-        }
+    // Check login status on mount and when returning from OAuth
+    useEffect(() => {
+        const checkLoginStatus = () => {
+            setIsUserLoggedIn(isLoggedIn());
+        };
+
+        checkLoginStatus();
+
+        // Listen for storage changes (OAuth callback stores token)
+        window.addEventListener('storage', checkLoginStatus);
+        // Also check periodically in case same-tab callback
+        const interval = setInterval(checkLoginStatus, 1000);
+
+        return () => {
+            window.removeEventListener('storage', checkLoginStatus);
+            clearInterval(interval);
+        };
     }, []);
 
     const addLog = (message: string, type: 'info' | 'success' | 'error') => {
@@ -29,6 +42,7 @@ const ReviewSubmit: React.FC<ReviewSubmitProps> = ({ data, onBack }) => {
     };
 
     const handleSubmit = async () => {
+        const token = getStoredToken();
         if (!token) {
             alert("Please enter your OSM OAuth token first.");
             return;
@@ -104,8 +118,8 @@ const ReviewSubmit: React.FC<ReviewSubmitProps> = ({ data, onBack }) => {
                         <button
                             onClick={() => setEnv('dev')}
                             className={`flex-1 py-2 px-3 rounded-md text-sm font-medium transition-all ${env === 'dev'
-                                    ? 'bg-white dark:bg-slate-600 shadow-sm text-slate-900 dark:text-slate-100'
-                                    : 'text-slate-500 dark:text-slate-400'
+                                ? 'bg-white dark:bg-slate-600 shadow-sm text-slate-900 dark:text-slate-100'
+                                : 'text-slate-500 dark:text-slate-400'
                                 }`}
                         >
                             Sandbox (Testing)
@@ -113,8 +127,8 @@ const ReviewSubmit: React.FC<ReviewSubmitProps> = ({ data, onBack }) => {
                         <button
                             onClick={() => setEnv('prod')}
                             className={`flex-1 py-2 px-3 rounded-md text-sm font-medium transition-all ${env === 'prod'
-                                    ? 'bg-red-50 dark:bg-red-950/30 text-red-700 dark:text-red-400 shadow-sm'
-                                    : 'text-slate-500 dark:text-slate-400'
+                                ? 'bg-red-50 dark:bg-red-950/30 text-red-700 dark:text-red-400 shadow-sm'
+                                : 'text-slate-500 dark:text-slate-400'
                                 }`}
                         >
                             Production (Live)
@@ -125,46 +139,30 @@ const ReviewSubmit: React.FC<ReviewSubmitProps> = ({ data, onBack }) => {
                     </p>
                 </div>
 
-                {/* Token Input */}
+
+
+                {/* User Authentication */}
                 <div>
-                    <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">OAuth Token</label>
-                    <div className="flex gap-2">
-                        <input
-                            type="password"
-                            value={token}
-                            onChange={(e) => {
-                                setToken(e.target.value);
-                                if (e.target.value) {
-                                    localStorage.setItem('osm_oauth_token', e.target.value);
-                                }
-                            }}
-                            placeholder="Paste your OAuth token..."
-                            className="flex-1 p-2.5 border border-slate-300 dark:border-slate-700 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none text-sm font-mono bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100"
-                        />
-                        {token && (
-                            <button
-                                onClick={() => {
-                                    setToken('');
-                                    localStorage.removeItem('osm_oauth_token');
-                                }}
-                                className="px-3 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/20 rounded-lg border border-red-200 dark:border-red-900"
-                            >
-                                Clear
-                            </button>
-                        )}
-                    </div>
-                    <p className="text-xs text-slate-500 dark:text-slate-400 mt-1.5">
-                        🔒 Securely cached on your device
-                    </p>
+                    <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Authentication</label>
+                    <UserInfo env={env} onEnvChange={setEnv} />
+
+                    {!isUserLoggedIn && (
+                        <div className="mt-3 p-3 bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-900 rounded-lg flex items-start gap-2">
+                            <AlertCircle className="w-4 h-4 text-amber-600 dark:text-amber-400 mt-0.5 shrink-0" />
+                            <p className="text-xs text-amber-800 dark:text-amber-200">
+                                Please log in with your OpenStreetMap account to submit changes
+                            </p>
+                        </div>
+                    )}
                 </div>
 
                 {/* Submit Button */}
                 <button
                     onClick={handleSubmit}
-                    disabled={isSubmitting || !token}
-                    className={`w-full py-3 rounded-xl font-semibold text-white transition-all flex items-center justify-center gap-2 ${isSubmitting || !token
-                            ? 'bg-slate-400 dark:bg-slate-600 cursor-not-allowed'
-                            : 'bg-blue-600 hover:bg-blue-700 shadow-md hover:shadow-lg'
+                    disabled={isSubmitting || !isUserLoggedIn}
+                    className={`w-full py-3 rounded-xl font-semibold text-white transition-all flex items-center justify-center gap-2 ${isSubmitting || !isUserLoggedIn
+                        ? 'bg-slate-400 dark:bg-slate-600 cursor-not-allowed'
+                        : 'bg-blue-600 hover:bg-blue-700 shadow-md hover:shadow-lg'
                         }`}
                 >
                     {isSubmitting ? <Loader2 className="w-5 h-5 animate-spin" /> : <Send className="w-5 h-5" />}
@@ -176,7 +174,7 @@ const ReviewSubmit: React.FC<ReviewSubmitProps> = ({ data, onBack }) => {
                     <div className="bg-slate-900 rounded-lg p-4 font-mono text-sm max-h-40 overflow-y-auto">
                         {logs.map((log, i) => (
                             <div key={i} className={`text-xs mb-1 ${log.type === 'error' ? 'text-red-400' :
-                                    log.type === 'success' ? 'text-green-400' : 'text-blue-300'
+                                log.type === 'success' ? 'text-green-400' : 'text-blue-300'
                                 }`}>
                                 [{log.timestamp.toLocaleTimeString()}] {log.message}
                             </div>

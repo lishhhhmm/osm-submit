@@ -1,12 +1,15 @@
 import React, { useEffect, useRef } from 'react';
+import { queryNearbyPOIs, overpassToPOIData } from '../services/overpassService';
+import { POIData } from '../types';
 
 interface LocationMapProps {
   lat: number;
   lon: number;
   onChange: (lat: number, lon: number) => void;
+  onPOIDetected?: (lat: number, lon: number) => void;
 }
 
-const LocationMap: React.FC<LocationMapProps> = ({ lat, lon, onChange }) => {
+const LocationMap: React.FC<LocationMapProps> = ({ lat, lon, onChange, onPOIDetected }) => {
   const mapContainer = useRef<HTMLDivElement>(null);
   const mapInstance = useRef<any>(null);
   const markerInstance = useRef<any>(null);
@@ -73,18 +76,42 @@ const LocationMap: React.FC<LocationMapProps> = ({ lat, lon, onChange }) => {
       onChange(parseFloat(lat.toFixed(7)), parseFloat(lng.toFixed(7)));
     });
 
-    map.on('click', (e: any) => {
+    // Debounce POI detection to avoid rate limiting
+    let poiCheckTimeout: any = null;
+    const checkForPOI = async (lat: number, lng: number) => {
+      if (!onPOIDetected) return;
+
+      // Clear any pending checks
+      if (poiCheckTimeout) {
+        clearTimeout(poiCheckTimeout);
+      }
+
+      // Wait 500ms before notifying parent (debounce)
+      poiCheckTimeout = setTimeout(() => {
+        console.log('Notifying parent of location click...');
+        onPOIDetected(lat, lng);
+      }, 500);
+    };
+
+    // Check for existing POIs when clicking
+    map.on('click', async (e: any) => {
       const { lat, lng } = e.latlng;
       marker.setLatLng([lat, lng]);
       onChange(parseFloat(lat.toFixed(7)), parseFloat(lng.toFixed(7)));
+
+      // Debounced POI check
+      checkForPOI(lat, lng);
     });
 
     // Handle location found from locate control
-    map.on('locationfound', (e: any) => {
+    map.on('locationfound', async (e: any) => {
       const { lat, lng } = e.latlng;
       marker.setLatLng([lat, lng]);
       onChange(parseFloat(lat.toFixed(7)), parseFloat(lng.toFixed(7)));
       console.log("Location found:", lat, lng);
+
+      // Debounced POI check
+      checkForPOI(lat, lng);
     });
 
 

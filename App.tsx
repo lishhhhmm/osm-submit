@@ -17,9 +17,16 @@ const INITIAL_DATA: POIData = {
 const App: React.FC = () => {
   const [data, setData] = useState<POIData>(INITIAL_DATA);
   const [step, setStep] = useState<'form' | 'review'>('form');
+  const [mode, setMode] = useState<'create' | 'edit'>('create');
 
   const isFormValid = () => {
     return data.tags.name && data.tags.amenity && data.lat !== 0 && data.lon !== 0;
+  };
+
+  const handleReset = () => {
+    setData(INITIAL_DATA);
+    setMode('create');
+    setStep('form');
   };
 
   return (
@@ -54,19 +61,25 @@ const App: React.FC = () => {
         {step === 'form' && (
           <div className="space-y-6">
             <div className="text-center md:text-left">
-              <h2 className="text-2xl md:text-3xl font-bold text-slate-800 dark:text-slate-100 mb-2">Add a New Place</h2>
-              <p className="text-slate-500 dark:text-slate-400">Fill in the details of the business or location you want to add to OpenStreetMap</p>
+              <h2 className="text-2xl md:text-3xl font-bold text-slate-800 dark:text-slate-100 mb-2">
+                {mode === 'edit' ? 'Edit Place' : 'Add a New Place'}
+              </h2>
+              <p className="text-slate-500 dark:text-slate-400">
+                {mode === 'edit'
+                  ? 'Modify the details of this existing location'
+                  : 'Fill in the details of the business or location you want to add to OpenStreetMap'}
+              </p>
             </div>
 
-            <POIForm data={data} onChange={setData} />
+            <POIForm data={data} onChange={setData} mode={mode} onModeChange={setMode} />
 
             <div className="flex justify-end pt-4">
               <button
                 onClick={() => setStep('review')}
                 disabled={!isFormValid()}
                 className={`px-8 py-3 rounded-xl font-semibold transition-all flex items-center gap-2 ${isFormValid()
-                    ? 'bg-blue-600 hover:bg-blue-700 text-white shadow-lg shadow-blue-600/20 hover:scale-[1.02]'
-                    : 'bg-slate-300 dark:bg-slate-700 text-slate-500 dark:text-slate-500 cursor-not-allowed'
+                  ? 'bg-blue-600 hover:bg-blue-700 text-white shadow-lg shadow-blue-600/20 hover:scale-[1.02]'
+                  : 'bg-slate-300 dark:bg-slate-700 text-slate-500 dark:text-slate-500 cursor-not-allowed'
                   }`}
               >
                 Continue to Review
