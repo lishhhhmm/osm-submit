@@ -235,6 +235,35 @@ CLIENT_ID: import.meta.env.VITE_OSM_CLIENT_ID || 'YOUR_CLIENT_ID_HERE',
 
 ---
 
+## 📤 **Deployment to GitHub Pages**
+
+Your OAuth configuration needs to work in **two environments**:
+
+### **Local Development**
+Uses `.env.local` file:
+```env
+VITE_OSM_CLIENT_ID=your_client_id
+```
+
+### **Production (GitHub Pages)**
+Uses **GitHub Secrets**:
+
+1. Go to: `https://github.com/YOUR_USERNAME/osmsubmit/settings/secrets/actions`
+2. Click "New repository secret"
+3. Add:
+   - Name: `VITE_OSM_CLIENT_ID`
+   - Value: Your Client ID
+4. Click "Add secret"
+
+**The workflow automatically:**
+- Reads the secret during build
+- Bakes it into the deployed app
+- OAuth works on your live site!
+
+See `GITHUB_SECRETS_SETUP.md` for detailed instructions.
+
+---
+
 ## ✅ **Testing Checklist**
 
 ### **Local Development:**

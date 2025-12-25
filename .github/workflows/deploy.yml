@@ -39,7 +39,10 @@ jobs:
       - name: Build
         run: npm run build
         env:
-          # Set a dummy API key for build (the real one should be set by users)
+          # OSM OAuth Configuration (from GitHub Secrets)
+          VITE_OSM_CLIENT_ID: ${{ secrets.VITE_OSM_CLIENT_ID }}
+          VITE_OSM_CLIENT_SECRET: ${{ secrets.VITE_OSM_CLIENT_SECRET }}
+          # Gemini API key (optional)
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY || 'dummy_key_for_build' }}
           # Optional: Set BASE_PATH if NOT using custom domain
           # BASE_PATH: '/your-repo-name/'

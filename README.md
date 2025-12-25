@@ -67,6 +67,28 @@ This project is configured for automatic deployment to GitHub Pages with custom 
      BASE_PATH: '/YOUR_REPO_NAME/'
      ```
 
+
+5. **Configure OAuth for OpenStreetMap** (REQUIRED):
+   
+   **For Local Development:**
+   - Edit `.env.local` and add your OAuth Client ID:
+     ```env
+     VITE_OSM_CLIENT_ID=your_client_id_here
+     ```
+   - See `ENV_SETUP.md` for details
+   
+   **For GitHub Pages Deployment:**
+   - Go to **Settings** → **Secrets and variables** → **Actions**
+   - Add secret: `VITE_OSM_CLIENT_ID` with your Client ID
+   - See `GITHUB_SECRETS_SETUP.md` for step-by-step guide
+   
+   **Register OAuth App:**
+   - Visit: https://www.openstreetmap.org/oauth2/applications
+   - Create new application
+   - Add redirect URI: `https://yourdomain.com/oauth/callback`
+   - Copy Client ID
+   - See `OAUTH_SETUP_GUIDE.md` for complete instructions
+
 6. **Optional - Add API Key Secret**:
    - Go to **Settings** → **Secrets and variables** → **Actions**
    - Add a new secret named `GEMINI_API_KEY` with your API key
@@ -83,8 +105,13 @@ If you prefer to run the app without Docker:
    npm install
    ```
 
-2. Set up your environment:
-   - Copy `.env.local` and add your `GEMINI_API_KEY` if needed
+2. Configure OAuth credentials:
+   - Edit `.env.local` and add:
+     ```env
+     VITE_OSM_CLIENT_ID=your_oauth_client_id
+     ```
+   - See `ENV_SETUP.md` for complete setup guide
+   - See `OAUTH_SETUP_GUIDE.md` for registering your OAuth app
 
 3. Start the development server:
    ```bash
