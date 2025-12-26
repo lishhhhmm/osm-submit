@@ -14,7 +14,7 @@
 
 ## Quick Start with Docker
 
-The easiest way to run and test the application is using Docker:
+The easiest way to run and test the application locally:
 
 ```bash
 # Start the application
@@ -23,11 +23,30 @@ docker compose up -d
 # The app will be available at http://localhost:3000
 ```
 
+**Features:**
+- Hot reload enabled - code changes update automatically
+- Mock OAuth for testing - no HTTPS needed locally
+- Vite dev server with fast builds
+
 To stop the application:
 
 ```bash
 docker compose down
 ```
+
+### Local OAuth Testing
+
+When running on `localhost`, the app uses **mock OAuth** instead of real OSM authentication:
+
+1. Click "🔧 Mock Login (Dev)" button
+2. Choose a test scenario:
+   - ✅ Success - Login as TestUser
+   - ❌ Fail - Invalid Credentials
+   - ❌ Fail - User Denied Access
+3. Experience the full OAuth callback flow
+4. POI data is preserved throughout
+
+This lets you test the complete submission workflow without needing HTTPS or real OSM credentials.
 
 ## Deploy to GitHub Pages
 
@@ -96,7 +115,7 @@ This project is configured for automatic deployment to GitHub Pages with custom 
 
 ## Manual Setup (Development)
 
-If you prefer to run the app without Docker:
+If you prefer to run without Docker:
 
 **Prerequisites:** Node.js 20+
 
@@ -105,20 +124,14 @@ If you prefer to run the app without Docker:
    npm install
    ```
 
-2. Configure OAuth credentials:
-   - Edit `.env.local` and add:
-     ```env
-     VITE_OSM_CLIENT_ID=your_oauth_client_id
-     ```
-   - See `ENV_SETUP.md` for complete setup guide
-   - See `OAUTH_SETUP_GUIDE.md` for registering your OAuth app
-
-3. Start the development server:
+2. Start the development server:
    ```bash
    npm run dev
    ```
 
-4. Open [http://localhost:5173](http://localhost:5173) in your browser
+3. Open [http://localhost:3000](http://localhost:3000) in your browser
+
+**Note:** Local development uses mock OAuth - see "Local OAuth Testing" section above.
 
 ## Building for Production
 
@@ -133,11 +146,14 @@ npm run preview
 - **Build Tool**: Vite 6
 - **Icons**: Lucide React
 - **AI Integration**: Google Generative AI
-- **Deployment**: Docker with nginx
+- **Deployment**: GitHub Pages (production), Docker (local dev)
 
-## Deployment Notes
+## Documentation
 
-**GitHub Actions Configuration**: The workflow uses `npm install` instead of `npm ci` and doesn't cache dependencies since the project doesn't include a lock file. This is intentional to support deployment without requiring local Node.js installation. The workflow will install fresh dependencies on each deployment, ensuring compatibility.
+- `OAUTH_SETUP_GUIDE.md` - Complete OAuth configuration guide
+- `ENV_SETUP.md` - Environment variable setup
+- `GITHUB_SECRETS_SETUP.md` - GitHub Pages deployment secrets
+- `DOCS_INDEX.md` - Complete documentation index
 
 ## License
 

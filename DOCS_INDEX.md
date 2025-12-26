@@ -9,7 +9,7 @@ Welcome to OSM Submit! Here's a guide to all documentation files.
 ### 1. **README.md** - Start Here!
 Main project overview with quick start instructions.
 - Project features
-- Docker setup
+- Docker setup with mock OAuth
 - GitHub Pages deployment
 - Basic configuration
 
@@ -17,7 +17,7 @@ Main project overview with quick start instructions.
 
 ---
 
-## 🔐 **OAuth Configuration** (REQUIRED)
+## 🔐 **OAuth Configuration** (REQUIRED for Production)
 
 OAuth authentication is required to submit changes to OpenStreetMap.
 
@@ -33,24 +33,38 @@ Understanding why we need OAuth 2.0.
 Full step-by-step OAuth implementation details.
 - How to register your app
 - OAuth flow explanation
-- Technical details
+- Local vs production setup
 - Testing instructions
 
 **Read:** `OAUTH_SETUP_GUIDE.md`
 
 ---
 
+## 🧪 **Local Development**
+
+### 4. **Mock OAuth Testing**
+For localhost development, no OAuth setup needed!
+
+- Automatically uses mock authentication
+- Test success and failure scenarios
+- Full callback flow simulation
+- No HTTPS required
+
+See "Local OAuth Testing" section in `README.md`
+
+---
+
 ## ⚙️ **Environment Variables**
 
-### 4. **ENV_SETUP.md** - Local Development Setup
-How to configure OAuth for local development.
+### 5. **ENV_SETUP.md** - Local Development Setup
+How to configure OAuth for local development (if needed).
 - Using `.env.local`
 - Environment variable structure
 - Security notes
 
 **For local dev:** `ENV_SETUP.md`
 
-### 5. **GITHUB_SECRETS_SETUP.md** - Production Deployment
+### 6. **GITHUB_SECRETS_SETUP.md** - Production Deployment
 How to configure OAuth for GitHub Pages.
 - Adding GitHub Secrets
 - Workflow configuration
@@ -58,7 +72,7 @@ How to configure OAuth for GitHub Pages.
 
 **For deployment:** `GITHUB_SECRETS_SETUP.md`
 
-### 6. **.env.example** - Template File
+### 7. **.env.example** - Template File
 Template showing what environment variables are needed.
 - Copy to `.env.local`
 - Fill in your values
@@ -69,7 +83,7 @@ Template showing what environment variables are needed.
 
 ## 📝 **Features Documentation**
 
-### 7. **EDIT_DELETE_FEATURE.md** - POI Editing
+### 8. **EDIT_DELETE_FEATURE.md** - POI Editing
 Documentation for the edit/delete POI feature.
 - How POI detection works
 - Overpass API integration
@@ -81,15 +95,10 @@ Documentation for the edit/delete POI feature.
 
 ## 🚢 **Deployment**
 
-### 8. **DEPLOYMENT.md** - Deployment Guide
-General deployment instructions.
+### 9. **GITHUB_PAGES_CONFIG.md** - GitHub Pages Setup
+Configuration for GitHub Pages deployment.
 
-**Deploy guide:** `DEPLOYMENT.md`
-
-### 9. **DOCKER.md** - Docker Setup
-Running the app with Docker.
-
-**Docker:** `DOCKER.md`
+**Deploy guide:** `GITHUB_PAGES_CONFIG.md`
 
 ### 10. **GIT_COMMANDS.md** - Git Reference
 Common git commands for the project.
@@ -132,18 +141,18 @@ Comprehensive security checklist.
 
 ---
 
-## 🎯 **Common Tasks**
+## 🎯 **Quick Reference**
 
 | I want to... | Read this |
 |--------------|-----------|
 | Get started quickly | `README.md` |
-| Set up OAuth locally | `ENV_SETUP.md` + `OAUTH_SETUP_GUIDE.md` |
-| Deploy to GitHub Pages | `README.md` + `GITHUB_SECRETS_SETUP.md` |
+| Test OAuth locally | `README.md` (Mock OAuth section) |
+| Set up OAuth for production | `OAUTH_SETUP_GUIDE.md` + `GITHUB_SECRETS_SETUP.md` |
 | Understand OAuth requirements | `OAUTH_REQUIREMENTS.md` |
 | Configure environment variables | `ENV_SETUP.md` |
 | Add GitHub Secrets | `GITHUB_SECRETS_SETUP.md` |
 | Learn about POI editing | `EDIT_DELETE_FEATURE.md` |
-| Use Docker | `DOCKER.md` |
+| Use Docker | `README.md` (Quick Start section) |
 | Check security | `SECURITY_CHECKLIST.md` |
 
 ---
@@ -162,8 +171,7 @@ osmsubmit/
 │   ├── ENV_SETUP.md             # Local env setup
 │   ├── GITHUB_SECRETS_SETUP.md  # Deployment env setup
 │   ├── EDIT_DELETE_FEATURE.md   # Feature documentation
-│   ├── DEPLOYMENT.md            # Deployment guide
-│   ├── DOCKER.md                # Docker setup
+│   ├── GITHUB_PAGES_CONFIG.md   # Pages configuration
 │   ├── GIT_COMMANDS.md          # Git reference
 │   └── SECURITY_CHECKLIST.md    # Security audit
 │
@@ -176,11 +184,10 @@ osmsubmit/
 ## 💡 **Tips**
 
 - **Start with README.md** - Gets you running quickly
-- **OAuth is required** - Follow the setup guides
-- **Local = .env.local** - Your computer
-- **Production = GitHub Secrets** - Deployed site
+- **Docker for local dev** - Uses mock OAuth, no setup needed
+- **Production needs OAuth** - Follow OAUTH_SETUP_GUIDE for GitHub Pages
 - **Never commit secrets** - They're already gitignored
-- **Test locally first** - Before deploying
+- **Test locally first** - Use mock OAuth before deploying
 
 ---
 
