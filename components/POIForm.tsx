@@ -1,6 +1,6 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useState, useRef, useEffect } from 'react';
 import { POIData, OsmTags } from '../types';
-import { MapPin, Building, Globe, Phone, Clock, Accessibility, Edit, PlusCircle } from 'lucide-react';
+import { MapPin, Building, Globe, Phone, Clock, Accessibility, Edit, PlusCircle, Trash2 } from 'lucide-react';
 import LocationMap from './LocationMap';
 import POISelector from './POISelector';
 import { queryNearbyPOIs, overpassToPOIData, getPOIDisplayName } from '../services/overpassService';
@@ -16,6 +16,12 @@ const POIForm: React.FC<POIFormProps> = ({ data, onChange, mode = 'create', onMo
   const [showPOISelector, setShowPOISelector] = useState(false);
   const [nearbyPOIs, setNearbyPOIs] = useState<any[]>([]);
   const [selectedLocation, setSelectedLocation] = useState<{ lat: number, lon: number } | null>(null);
+
+  // Use ref to store latest data to avoid stale closure
+  const dataRef = useRef(data);
+  useEffect(() => {
+    dataRef.current = data;
+  }, [data]);
 
   const handleTagChange = (key: keyof OsmTags, value: string) => {
     onChange({
@@ -34,12 +40,28 @@ const POIForm: React.FC<POIFormProps> = ({ data, onChange, mode = 'create', onMo
     });
   };
 
+  // Update only coordinates - preserve all form data
+  // Use dataRef.current to get the latest data and avoid stale closure
   const handleMapChange = (lat: number, lon: number) => {
     onChange({
-      ...data,
+      ...dataRef.current,
       lat,
       lon
     });
+  };
+
+  // Clear all form data except coordinates
+  const handleClearForm = () => {
+    onChange({
+      lat: dataRef.current.lat,
+      lon: dataRef.current.lon,
+      tags: {
+        name: '',
+        amenity: '',
+        cuisine: '',
+      }
+    });
+    onModeChange?.('create');
   };
 
   const cardClass = "bg-white dark:bg-slate-900 p-6 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800 transition-colors duration-200";
@@ -68,6 +90,15 @@ const POIForm: React.FC<POIFormProps> = ({ data, onChange, mode = 'create', onMo
             <p className="font-semibold text-blue-900 dark:text-blue-100">Creating New POI</p>
             <p className="text-sm text-blue-700 dark:text-blue-300">Add a new place to OpenStreetMap</p>
           </div>
+          {(data.tags.name || data.tags.amenity) && (
+            <button
+              onClick={handleClearForm}
+              className="p-2 hover:bg-red-100 dark:hover:bg-red-950/20 rounded-lg transition-colors group"
+              title="Clear all form data"
+            >
+              <Trash2 className="w-4 h-4 text-slate-600 dark:text-slate-400 group-hover:text-red-600 dark:group-hover:text-red-400" />
+            </button>
+          )}
         </div>
       )}
 
