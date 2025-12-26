@@ -2,10 +2,10 @@ services:
   osm-submit:
     build:
       context: .
-      dockerfile: Dockerfile.dev  # Use dev server with HTTPS
+      dockerfile: Dockerfile.dev  # Use dev server with HTTP
     container_name: osm-submit
     ports:
-      - "3000:3000"  # HTTPS port
+      - "3000:3000"  # HTTP port
     volumes:
       - .:/app              # Mount source for hot reload
       - /app/node_modules   # Don't overwrite node_modules

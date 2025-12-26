@@ -21,15 +21,7 @@ Main project overview with quick start instructions.
 
 OAuth authentication is required to submit changes to OpenStreetMap.
 
-### 2. **OAUTH_REQUIREMENTS.md** - Why OAuth?
-Understanding why we need OAuth 2.0.
-- What changed in 2024
-- Why manual tokens don't work
-- Security benefits
-
-**Read:** `OAUTH_REQUIREMENTS.md`
-
-### 3. **OAUTH_SETUP_GUIDE.md** - Complete OAuth Guide
+### 2. **OAUTH_SETUP_GUIDE.md** - Complete OAuth Guide
 Full step-by-step OAuth implementation details.
 - How to register your app
 - OAuth flow explanation
@@ -42,7 +34,7 @@ Full step-by-step OAuth implementation details.
 
 ## 🧪 **Local Development**
 
-### 4. **Mock OAuth Testing**
+### 3. **Mock OAuth Testing**
 For localhost development, no OAuth setup needed!
 
 - Automatically uses mock authentication
@@ -56,7 +48,7 @@ See "Local OAuth Testing" section in `README.md`
 
 ## ⚙️ **Environment Variables**
 
-### 5. **ENV_SETUP.md** - Local Development Setup
+### 4. **ENV_SETUP.md** - Local Development Setup
 How to configure OAuth for local development (if needed).
 - Using `.env.local`
 - Environment variable structure
@@ -64,7 +56,7 @@ How to configure OAuth for local development (if needed).
 
 **For local dev:** `ENV_SETUP.md`
 
-### 6. **GITHUB_SECRETS_SETUP.md** - Production Deployment
+### 5. **GITHUB_SECRETS_SETUP.md** - Production Deployment
 How to configure OAuth for GitHub Pages.
 - Adding GitHub Secrets
 - Workflow configuration
@@ -72,7 +64,7 @@ How to configure OAuth for GitHub Pages.
 
 **For deployment:** `GITHUB_SECRETS_SETUP.md`
 
-### 7. **.env.example** - Template File
+### 6. **.env.example** - Template File
 Template showing what environment variables are needed.
 - Copy to `.env.local`
 - Fill in your values
@@ -83,7 +75,7 @@ Template showing what environment variables are needed.
 
 ## 📝 **Features Documentation**
 
-### 8. **EDIT_DELETE_FEATURE.md** - POI Editing
+### 7. **EDIT_DELETE_FEATURE.md** - POI Editing
 Documentation for the edit/delete POI feature.
 - How POI detection works
 - Overpass API integration
@@ -93,23 +85,9 @@ Documentation for the edit/delete POI feature.
 
 ---
 
-## 🚢 **Deployment**
-
-### 9. **GITHUB_PAGES_CONFIG.md** - GitHub Pages Setup
-Configuration for GitHub Pages deployment.
-
-**Deploy guide:** `GITHUB_PAGES_CONFIG.md`
-
-### 10. **GIT_COMMANDS.md** - Git Reference
-Common git commands for the project.
-
-**Git help:** `GIT_COMMANDS.md`
-
----
-
 ## 🔒 **Security**
 
-### 11. **SECURITY_CHECKLIST.md** - Security Audit
+### 8. **SECURITY_CHECKLIST.md** - Security Audit
 Comprehensive security checklist.
 - What's safe to commit
 - Security practices
@@ -123,19 +101,23 @@ Comprehensive security checklist.
 
 ### Setup Checklist:
 
-**Local Development:**
+**Local Development (with Docker - Recommended):**
+1. ✅ Read `README.md`
+2. ✅ Run: `docker compose up -d`
+3. ✅ Open: http://localhost:3000
+4. ✅ Test with Mock OAuth
+
+**Local Development (without Docker):**
 1. ✅ Read `README.md`
 2. ✅ Install dependencies: `npm install`
-3. ✅ Register OAuth app (see `OAUTH_SETUP_GUIDE.md`)
-4. ✅ Add to `.env.local` (see `ENV_SETUP.md`)
-5. ✅ Run: `npm run dev`
-6. ✅ Test OAuth login
+3. ✅ Run: `npm run dev`
+4. ✅ Test with Mock OAuth
 
 **GitHub Pages Deployment:**
 1. ✅ Push code to GitHub
 2. ✅ Enable GitHub Pages (see `README.md`)
 3. ✅ Add GitHub Secrets (see `GITHUB_SECRETS_SETUP.md`)
-4. ✅ Register OAuth redirect URI
+4. ✅ Register OAuth redirect URI (see `OAUTH_SETUP_GUIDE.md`)
 5. ✅ Wait for deployment
 6. ✅ Test on live site
 
@@ -144,11 +126,10 @@ Comprehensive security checklist.
 ## 🎯 **Quick Reference**
 
 | I want to... | Read this |
-|--------------|-----------|
+|--------------|-----------
 | Get started quickly | `README.md` |
 | Test OAuth locally | `README.md` (Mock OAuth section) |
 | Set up OAuth for production | `OAUTH_SETUP_GUIDE.md` + `GITHUB_SECRETS_SETUP.md` |
-| Understand OAuth requirements | `OAUTH_REQUIREMENTS.md` |
 | Configure environment variables | `ENV_SETUP.md` |
 | Add GitHub Secrets | `GITHUB_SECRETS_SETUP.md` |
 | Learn about POI editing | `EDIT_DELETE_FEATURE.md` |
@@ -166,13 +147,10 @@ osmsubmit/
 ├── .env.local                   # Your actual secrets (gitignored)
 │
 ├── Documentation/
-│   ├── OAUTH_REQUIREMENTS.md    # Why OAuth is needed
 │   ├── OAUTH_SETUP_GUIDE.md     # Complete OAuth guide
 │   ├── ENV_SETUP.md             # Local env setup
 │   ├── GITHUB_SECRETS_SETUP.md  # Deployment env setup
 │   ├── EDIT_DELETE_FEATURE.md   # Feature documentation
-│   ├── GITHUB_PAGES_CONFIG.md   # Pages configuration
-│   ├── GIT_COMMANDS.md          # Git reference
 │   └── SECURITY_CHECKLIST.md    # Security audit
 │
 └── .github/workflows/

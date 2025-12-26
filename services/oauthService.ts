@@ -7,10 +7,6 @@ const OAUTH_CONFIG = {
     // Get from: https://www.openstreetmap.org/oauth2/applications
     CLIENT_ID: import.meta.env.VITE_OSM_CLIENT_ID || 'YOUR_CLIENT_ID_HERE',
 
-    // Client Secret (optional - only needed if you checked "Confidential application")
-    // For PKCE flow (recommended for SPAs), you don't need this
-    CLIENT_SECRET: import.meta.env.VITE_OSM_CLIENT_SECRET || '',
-
     dev: {
         authUrl: 'https://master.apis.dev.openstreetmap.org/oauth2/authorize',
         tokenUrl: 'https://master.apis.dev.openstreetmap.org/oauth2/token',
@@ -41,18 +37,18 @@ function generateRandomString(length: number): string {
         .join('');
 }
 
-// SHA-256 hash and base64url encode
+/**
+ * SHA-256 hash and base64url encode for PKCE
+ */
 async function sha256(plain: string): Promise<string> {
     const encoder = new TextEncoder();
     const data = encoder.encode(plain);
     const hash = await crypto.subtle.digest('SHA-256', data);
 
     // Convert to base64url
-    const bytes = new Uint8Array(hash);
-    let binary = '';
-    for (let i = 0; i < bytes.length; i++) {
-        binary += String.fromCharCode(bytes[i]);
-    }
+    const bytes = Array.from(new Uint8Array(hash));
+    const binary = String.fromCharCode(...bytes);
+
     return btoa(binary)
         .replace(/\+/g, '-')
         .replace(/\//g, '_')

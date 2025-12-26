@@ -39,11 +39,6 @@ const App: React.FC = () => {
     }
   }, []);
 
-  // Save state to localStorage whenever it changes (for OAuth redirect)
-  const saveStateForOAuth = () => {
-    localStorage.setItem('oauth_app_state', JSON.stringify({ data, step, mode }));
-  };
-
   const isFormValid = () => {
     return data.tags.name && data.tags.amenity && data.lat !== 0 && data.lon !== 0;
   };

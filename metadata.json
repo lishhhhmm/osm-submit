@@ -1,7 +1,0 @@
-{
-  "name": "OSM Submit",
-  "description": "A professional tool to draft, validate, and convert POI data into OpenStreetMap compatible XML formats.",
-  "requestFramePermissions": [
-    "geolocation"
-  ]
-}
