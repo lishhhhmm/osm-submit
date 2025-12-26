@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { User, LogOut, LogIn, Loader2 } from 'lucide-react';
 import { startOAuthLogin, logout, isLoggedIn, getCurrentUser, getStoredToken, getStoredEnv } from '../services/oauthService';
 import { OsmEnvironment } from '../types';
+import MockOAuth from './MockOAuth';
 
 interface UserInfoProps {
     env: OsmEnvironment;
@@ -13,6 +14,9 @@ const UserInfo: React.FC<UserInfoProps> = ({ env, onEnvChange, appState }) => {
     const [isAuthenticated, setIsAuthenticated] = useState(isLoggedIn());
     const [user, setUser] = useState<any>(null);
     const [loading, setLoading] = useState(false);
+    const [showMockOAuth, setShowMockOAuth] = useState(false);
+
+    const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
 
     useEffect(() => {
         const loadUser = async () => {
@@ -21,15 +25,23 @@ const UserInfo: React.FC<UserInfoProps> = ({ env, onEnvChange, appState }) => {
                 try {
                     const token = getStoredToken();
                     const storedEnv = getStoredEnv();
-                    if (token) {
+
+                    if (isLocalhost && token && token.startsWith('mock_token')) {
+                        // Mock user for localhost - construct from token
+                        const mockUser = {
+                            id: 12345,
+                            display_name: 'TestUser',
+                            img: { href: '' }
+                        };
+                        setUser(mockUser);
+                    } else if (token) {
+                        // Real OAuth - fetch from API
                         const userData = await getCurrentUser(token, storedEnv);
                         setUser(userData);
-                        // Sync environment
                         onEnvChange(storedEnv);
                     }
                 } catch (error) {
                     console.error('Failed to load user:', error);
-                    // Token might be invalid
                     handleLogout();
                 } finally {
                     setLoading(false);
@@ -41,8 +53,13 @@ const UserInfo: React.FC<UserInfoProps> = ({ env, onEnvChange, appState }) => {
     }, [isAuthenticated]);
 
     const handleLogin = async () => {
-        // Save app state before redirecting to OAuth
-        await startOAuthLogin(env, appState);
+        if (isLocalhost) {
+            // Show mock OAuth dialog
+            setShowMockOAuth(true);
+        } else {
+            // Real OAuth flow
+            await startOAuthLogin(env, appState);
+        }
     };
 
     const handleLogout = () => {
@@ -96,13 +113,19 @@ const UserInfo: React.FC<UserInfoProps> = ({ env, onEnvChange, appState }) => {
     }
 
     return (
-        <button
-            onClick={handleLogin}
-            className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors shadow-md hover:shadow-lg"
-        >
-            <LogIn className="w-4 h-4" />
-            <span className="font-medium">Login with OSM</span>
-        </button>
+        <>
+            <button
+                onClick={handleLogin}
+                className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors shadow-md hover:shadow-lg"
+            >
+                <LogIn className="w-4 h-4" />
+                <span className="font-medium">
+                    {isLocalhost ? '🔧 Mock Login (Dev)' : 'Login with OSM'}
+                </span>
+            </button>
+
+            {showMockOAuth && <MockOAuth onClose={() => setShowMockOAuth(false)} appState={appState} />}
+        </>
     );
 };
 

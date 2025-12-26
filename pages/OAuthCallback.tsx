@@ -9,6 +9,55 @@ const OAuthCallback: React.FC = () => {
     useEffect(() => {
         const processCallback = async () => {
             try {
+                // Check if this is a mock OAuth (localhost testing)
+                const isMock = localStorage.getItem('mock_oauth_success');
+
+                if (isMock) {
+                    // Mock OAuth flow
+                    console.log('Processing mock OAuth callback');
+
+                    const success = isMock === 'true';
+
+                    if (success) {
+                        setMessage('Mock authentication successful!');
+
+                        // Get mock data
+                        const mockUser = localStorage.getItem('mock_oauth_user');
+                        const mockToken = localStorage.getItem('mock_oauth_token');
+
+                        if (mockUser && mockToken) {
+                            const user = JSON.parse(mockUser);
+
+                            // Store like real OAuth
+                            localStorage.setItem('osm_oauth_token', mockToken);
+                            localStorage.setItem('osm_oauth_env', 'dev');
+
+                            setStatus('success');
+                            setMessage(`Welcome, ${user.display_name}!`);
+
+                            // Clean up mock data
+                            localStorage.removeItem('mock_oauth_user');
+                            localStorage.removeItem('mock_oauth_token');
+                            localStorage.removeItem('mock_oauth_success');
+
+                            // Redirect back after 2 seconds
+                            setTimeout(() => {
+                                window.location.href = '/';
+                            }, 2000);
+                        }
+                    } else {
+                        // Mock error
+                        const error = localStorage.getItem('mock_oauth_error') || 'Mock authentication failed';
+                        localStorage.removeItem('mock_oauth_error');
+                        localStorage.removeItem('mock_oauth_success');
+
+                        throw new Error(error);
+                    }
+
+                    return; // Exit early for mock flow
+                }
+
+                // Real OAuth flow continues below...
                 // Get code and state from URL
                 // When using HashRouter, params are in the hash: /#/oauth/callback?code=...
                 // So we need to extract from window.location.hash
