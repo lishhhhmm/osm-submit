@@ -62,8 +62,14 @@ async function sha256(plain: string): Promise<string> {
 /**
  * Start OAuth 2.0 login flow with PKCE
  */
-export async function startOAuthLogin(env: OsmEnvironment = 'dev'): Promise<void> {
+export async function startOAuthLogin(env: OsmEnvironment = 'dev', appState?: any): Promise<void> {
     const config = OAUTH_CONFIG[env];
+
+    // Save app state to restore after OAuth
+    if (appState) {
+        localStorage.setItem('oauth_app_state', JSON.stringify(appState));
+        console.log('Saved app state before OAuth redirect');
+    }
 
     // Generate PKCE values
     const codeVerifier = generateRandomString(128);

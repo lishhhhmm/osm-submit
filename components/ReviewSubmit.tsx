@@ -9,9 +9,10 @@ import { isLoggedIn, getStoredToken, getStoredEnv } from '../services/oauthServi
 interface ReviewSubmitProps {
     data: POIData;
     onBack: () => void;
+    appState?: any;
 }
 
-const ReviewSubmit: React.FC<ReviewSubmitProps> = ({ data, onBack }) => {
+const ReviewSubmit: React.FC<ReviewSubmitProps> = ({ data, onBack, appState }) => {
     const [showAdvanced, setShowAdvanced] = useState(false);
     const [env, setEnv] = useState<OsmEnvironment>(getStoredEnv());
     const [isSubmitting, setIsSubmitting] = useState(false);
@@ -144,7 +145,7 @@ const ReviewSubmit: React.FC<ReviewSubmitProps> = ({ data, onBack }) => {
                 {/* User Authentication */}
                 <div>
                     <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Authentication</label>
-                    <UserInfo env={env} onEnvChange={setEnv} />
+                    <UserInfo env={env} onEnvChange={setEnv} appState={appState} />
 
                     {!isUserLoggedIn && (
                         <div className="mt-3 p-3 bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-900 rounded-lg flex items-start gap-2">

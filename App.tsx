@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { POIData } from './types';
 import POIForm from './components/POIForm';
 import ReviewSubmit from './components/ReviewSubmit';
@@ -18,6 +18,31 @@ const App: React.FC = () => {
   const [data, setData] = useState<POIData>(INITIAL_DATA);
   const [step, setStep] = useState<'form' | 'review'>('form');
   const [mode, setMode] = useState<'create' | 'edit'>('create');
+
+  // Restore state after OAuth redirect
+  useEffect(() => {
+    const savedState = localStorage.getItem('oauth_app_state');
+    if (savedState) {
+      try {
+        const { data: savedData, step: savedStep, mode: savedMode } = JSON.parse(savedState);
+        console.log('Restoring app state after OAuth:', { savedData, savedStep, savedMode });
+
+        if (savedData) setData(savedData);
+        if (savedStep) setStep(savedStep);
+        if (savedMode) setMode(savedMode);
+
+        // Clear the saved state
+        localStorage.removeItem('oauth_app_state');
+      } catch (error) {
+        console.error('Failed to restore state:', error);
+      }
+    }
+  }, []);
+
+  // Save state to localStorage whenever it changes (for OAuth redirect)
+  const saveStateForOAuth = () => {
+    localStorage.setItem('oauth_app_state', JSON.stringify({ data, step, mode }));
+  };
 
   const isFormValid = () => {
     return data.tags.name && data.tags.amenity && data.lat !== 0 && data.lon !== 0;
@@ -96,7 +121,11 @@ const App: React.FC = () => {
         )}
 
         {step === 'review' && (
-          <ReviewSubmit data={data} onBack={() => setStep('form')} />
+          <ReviewSubmit
+            data={data}
+            onBack={() => setStep('form')}
+            appState={{ data, step, mode }}
+          />
         )}
       </main>
 

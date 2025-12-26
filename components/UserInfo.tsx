@@ -6,9 +6,10 @@ import { OsmEnvironment } from '../types';
 interface UserInfoProps {
     env: OsmEnvironment;
     onEnvChange: (env: OsmEnvironment) => void;
+    appState?: any;
 }
 
-const UserInfo: React.FC<UserInfoProps> = ({ env, onEnvChange }) => {
+const UserInfo: React.FC<UserInfoProps> = ({ env, onEnvChange, appState }) => {
     const [isAuthenticated, setIsAuthenticated] = useState(isLoggedIn());
     const [user, setUser] = useState<any>(null);
     const [loading, setLoading] = useState(false);
@@ -40,7 +41,8 @@ const UserInfo: React.FC<UserInfoProps> = ({ env, onEnvChange }) => {
     }, [isAuthenticated]);
 
     const handleLogin = async () => {
-        await startOAuthLogin(env);
+        // Save app state before redirecting to OAuth
+        await startOAuthLogin(env, appState);
     };
 
     const handleLogout = () => {
