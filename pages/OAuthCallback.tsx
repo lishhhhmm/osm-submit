@@ -10,9 +10,19 @@ const OAuthCallback: React.FC = () => {
         const processCallback = async () => {
             try {
                 // Get code and state from URL
-                const params = new URLSearchParams(window.location.search);
+                // When using HashRouter, params are in the hash: /#/oauth/callback?code=...
+                // So we need to extract from window.location.hash
+                const hash = window.location.hash;
+                const queryStart = hash.indexOf('?');
+                const queryString = queryStart >= 0 ? hash.substring(queryStart + 1) : '';
+                const params = new URLSearchParams(queryString);
+
                 const code = params.get('code');
                 const state = params.get('state');
+
+                console.log('OAuth callback - hash:', hash);
+                console.log('OAuth callback - code:', code);
+                console.log('OAuth callback - state:', state);
 
                 if (!code || !state) {
                     throw new Error('Missing authorization code or state');
